@@ -5,20 +5,19 @@
 // ============================================================
 
 // ---- Configuration ----
-// Change this to your n8n instance base URL
-const N8N_BASE_URL = 'https://n8n.axcesstms.com';
-
+// We now use Vercel rewrites to bypass CORS.
+// The browser calls /api/* on Vercel, and Vercel securely forwards it to n8n backend.
 const API = {
     // Write endpoints (POST)
-    candidateUpload: `${N8N_BASE_URL}/webhook/candidate-upload`,
-    jobUpload:       `${N8N_BASE_URL}/webhook/job-upload`,
-    resumeMatch:     `${N8N_BASE_URL}/webhook/resume-match`,
+    candidateUpload: `/api/upload/candidate-upload`,
+    jobUpload:       `/api/upload/job-upload`,
+    resumeMatch:     `/api/upload/resume-match`,
 
     // Read endpoints (GET)
-    listCandidates:    `${N8N_BASE_URL}/webhook/list-candidates`,
-    listJobs:          `${N8N_BASE_URL}/webhook/list-jobs`,
-    getReport:         `${N8N_BASE_URL}/webhook/get-report`,
-    candidateReports:  `${N8N_BASE_URL}/webhook/candidate-reports`,
+    listCandidates:    `/api/read/list-candidates`,
+    listJobs:          `/api/read/list-jobs`,
+    getReport:         `/api/read/get-report`,
+    candidateReports:  `/api/read/candidate-reports`,
 };
 
 
