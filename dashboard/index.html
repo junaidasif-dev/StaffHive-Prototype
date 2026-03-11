@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StaffHive — Resume Match Prototype</title>
+    <meta name="description" content="StaffHive Resume Match Prototype - AI-powered candidate-job matching dashboard">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+
+        <!-- ===== HEADER ===== -->
+        <header class="app-header">
+            <div class="app-header__logo">
+                <div class="app-header__icon">🐝</div>
+                <div>
+                    <div class="app-header__title">StaffHive</div>
+                    <div class="app-header__subtitle">Resume Match Prototype</div>
+                </div>
+            </div>
+            <div class="app-header__actions">
+                <button class="btn btn--secondary" onclick="openModal('addJobModal')">+ Add Job</button>
+                <button class="btn btn--primary" onclick="openModal('addCandidateModal')">+ Add Candidate</button>
+            </div>
+        </header>
+
+        <!-- ===== TAB NAVIGATION ===== -->
+        <nav class="tabs" id="mainTabs">
+            <button class="tab tab--active" data-tab="candidates" onclick="switchTab('candidates')">
+                👤 Candidates
+            </button>
+            <button class="tab" data-tab="jobs" onclick="switchTab('jobs')">
+                💼 Jobs
+            </button>
+        </nav>
+
+        <!-- ===== CANDIDATES TAB ===== -->
+        <section id="candidatesTab">
+            <table class="data-table" id="candidateTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Resume File</th>
+                        <th>Parse Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="candidateTableBody">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+            <div class="empty-state" id="candidateEmptyState" style="display: none;">
+                <div class="empty-state__icon">👤</div>
+                <div class="empty-state__title">No candidates yet</div>
+                <div class="empty-state__text">Click "Add Candidate" to upload a resume and get started.</div>
+            </div>
+        </section>
+
+        <!-- ===== JOBS TAB ===== -->
+        <section id="jobsTab" style="display: none;">
+            <table class="data-table" id="jobTable">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Company</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody id="jobTableBody">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+            <div class="empty-state" id="jobEmptyState" style="display: none;">
+                <div class="empty-state__icon">💼</div>
+                <div class="empty-state__title">No jobs yet</div>
+                <div class="empty-state__text">Click "Add Job" to create an Open Order or Active Job.</div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ===== ADD CANDIDATE MODAL ===== -->
+    <div class="modal-overlay" id="addCandidateModal">
+        <div class="modal">
+            <div class="modal__header">
+                <h2 class="modal__title">Add Candidate</h2>
+                <button class="modal__close" onclick="closeModal('addCandidateModal')">✕</button>
+            </div>
+            <form id="addCandidateForm" onsubmit="handleAddCandidate(event)">
+                <div class="modal__body">
+                    <div class="form-group">
+                        <label for="candidateName">Full Name *</label>
+                        <input type="text" id="candidateName" class="form-input" placeholder="e.g. Bruce Pongray" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="candidateEmail">Email</label>
+                        <input type="email" id="candidateEmail" class="form-input" placeholder="e.g. bruce@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="candidatePhone">Phone</label>
+                        <input type="text" id="candidatePhone" class="form-input" placeholder="e.g. +1-555-0123">
+                    </div>
+                    <div class="form-group">
+                        <label for="candidateResume">Resume File (PDF/Doc) *</label>
+                        <div class="form-file">
+                            <input type="file" id="candidateResume" accept=".pdf,.doc,.docx" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal__footer">
+                    <button type="button" class="btn btn--secondary" onclick="closeModal('addCandidateModal')">Cancel</button>
+                    <button type="submit" class="btn btn--primary" id="addCandidateBtn">
+                        Upload & Parse Resume
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== ADD JOB MODAL ===== -->
+    <div class="modal-overlay" id="addJobModal">
+        <div class="modal">
+            <div class="modal__header">
+                <h2 class="modal__title">Add Job</h2>
+                <button class="modal__close" onclick="closeModal('addJobModal')">✕</button>
+            </div>
+            <form id="addJobForm" onsubmit="handleAddJob(event)">
+                <div class="modal__body">
+                    <div class="form-group">
+                        <label for="jobTitle">Job Title *</label>
+                        <input type="text" id="jobTitle" class="form-input" placeholder="e.g. Shipper / Receiver" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="jobCompany">Company</label>
+                        <input type="text" id="jobCompany" class="form-input" placeholder="e.g. Acme Corp">
+                    </div>
+                    <div class="form-group">
+                        <label for="jobType">Job Type *</label>
+                        <select id="jobType" class="form-select" required>
+                            <option value="open_order">Open Order</option>
+                            <option value="active_job">Active Job</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="jobDescription">Job Description (Plain Text) *</label>
+                        <textarea id="jobDescription" class="form-textarea" 
+                            placeholder="Paste the full job description here..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal__footer">
+                    <button type="button" class="btn btn--secondary" onclick="closeModal('addJobModal')">Cancel</button>
+                    <button type="submit" class="btn btn--primary" id="addJobBtn">Create Job</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== RESUME MATCH MODAL ===== -->
+    <div class="modal-overlay" id="resumeMatchModal">
+        <div class="modal">
+            <div class="modal__header">
+                <h2 class="modal__title" id="resumeMatchTitle">Resume Match Analysis</h2>
+                <button class="modal__close" onclick="closeModal('resumeMatchModal')">✕</button>
+            </div>
+            <div class="modal__body">
+                <div class="form-group">
+                    <label>Resume Document</label>
+                    <div style="display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-md);">
+                        <span id="matchResumeFileName" style="color: var(--text-primary);">—</span>
+                        <span class="badge badge--ready" style="margin-left: auto;">Pre-Parsed ✓</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="matchJobType">Compare Against</label>
+                    <select id="matchJobType" class="form-select" onchange="loadJobsForMatch()">
+                        <option value="open_order">Open Orders</option>
+                        <option value="active_job">Active Jobs</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="matchJobSelect">Select Job</label>
+                    <select id="matchJobSelect" class="form-select">
+                        <option value="">— Select a Job —</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal__footer">
+                <button class="btn btn--secondary" onclick="closeModal('resumeMatchModal')">Cancel</button>
+                <button class="btn btn--primary btn--lg" id="generateMatchBtn" onclick="handleGenerateMatch()">
+                    ⬆ Generate Match Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== REPORT PREVIEW MODAL ===== -->
+    <div class="modal-overlay" id="reportPreviewModal">
+        <div class="modal">
+            <div class="modal__header">
+                <h2 class="modal__title" id="reportPreviewTitle">Resume Match Analysis</h2>
+                <button class="modal__close" onclick="closeModal('reportPreviewModal')">✕</button>
+            </div>
+            <div class="modal__body">
+                <!-- Success Banner -->
+                <div class="success-banner">
+                    <div class="success-banner__icon">✓</div>
+                    <div class="success-banner__text">
+                        <strong>Match Report Generated Successfully</strong>
+                        <span>Report saved to candidate documents</span>
+                    </div>
+                </div>
+
+                <!-- Metrics Bar -->
+                <div class="metrics-bar">
+                    <div class="metric">
+                        <div class="metric__label">Time</div>
+                        <div class="metric__value metric__value--green" id="previewMetricTime">—</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric__label">Input Tokens</div>
+                        <div class="metric__value" id="previewMetricInputTokens">—</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric__label">Output Tokens</div>
+                        <div class="metric__value" id="previewMetricOutputTokens">—</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric__label">Model</div>
+                        <div class="metric__value" id="previewMetricModel">—</div>
+                    </div>
+                </div>
+
+                <!-- Score + Summary -->
+                <div style="display: flex; align-items: flex-start; gap: 24px; margin-bottom: 20px;">
+                    <div class="score-ring" id="previewScoreRing">
+                        <div class="score-ring__circle"><span id="previewScore">—</span></div>
+                        <div class="score-ring__label">Match Score</div>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                            <span id="previewFileName" style="font-weight: 600; font-size: 0.85rem; padding: 4px 10px; background: var(--bg-tertiary); border-radius: 4px;">—</span>
+                            <span id="previewDate" style="font-size: 0.8rem; color: var(--text-muted);">—</span>
+                        </div>
+                        <div style="padding: 16px; background: var(--bg-tertiary); border-radius: var(--radius-md); border: 1px solid var(--border-default);">
+                            <div style="font-weight: 700; margin-bottom: 8px;">Match Report Preview</div>
+                            <p id="previewSummary" style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6;">—</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal__footer">
+                <button class="btn btn--primary btn--full" onclick="closeModal('reportPreviewModal')">Close</button>
+                <button class="btn btn--secondary btn--full" onclick="openFullReport()">View Full Report</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FULL REPORT MODAL ===== -->
+    <div class="modal-overlay" id="fullReportModal">
+        <div class="modal modal--wide">
+            <div class="modal__header">
+                <div>
+                    <h2 class="modal__title">Resume Match Report</h2>
+                    <div id="fullReportSubtitle" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">—</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span class="badge" id="fullReportScoreBadge">—</span>
+                    <button class="modal__close" onclick="closeModal('fullReportModal')">✕</button>
+                </div>
+            </div>
+            <div class="modal__body" id="fullReportBody">
+                <!-- Populated dynamically  -->
+            </div>
+            <div class="modal__footer modal__footer--split">
+                <button class="btn btn--secondary" onclick="closeModal('fullReportModal')">✕ Close</button>
+                <button class="btn btn--primary" onclick="copyReportToClipboard()">📋 Copy to Clipboard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== LOADING MODAL ===== -->
+    <div class="modal-overlay" id="loadingModal">
+        <div class="modal" style="max-width: 400px; text-align: center;">
+            <div class="modal__body" style="padding: 48px 32px;">
+                <div class="spinner" style="width: 48px; height: 48px; border-width: 4px; margin: 0 auto 20px;"></div>
+                <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 8px;">Generating Match Report...</div>
+                <div style="color: var(--text-secondary); font-size: 0.85rem;" id="loadingTimer">Elapsed: 0.0s</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
