@@ -141,6 +141,29 @@ function renderParseStatusBadge(status) {
     return map[status] || `<span class="badge">${status}</span>`;
 }
 
+// ==== UTILS ====
+
+function escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return String(unsafe)
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+}
+
+function formatDate(isoString) {
+    if (!isoString) return '—';
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return String(isoString);
+    return d.toLocaleDateString('en-US', {
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric'
+    });
+}
+
 function renderJobTypeBadge(type) {
     if (type === 'open_order') return '<span class="badge badge--pending">Open Order</span>';
     if (type === 'active_job') return '<span class="badge badge--ready">Active Job</span>';
