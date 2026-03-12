@@ -114,11 +114,15 @@ function renderCandidateTable(errorMsg) {
                 📄 ${escapeHtml(c.resume_file_name || '—')}
             </td>
             <td>${renderParseStatusBadge(c.parse_status)}</td>
-            <td>
+            <td style="display:flex;gap:6px;flex-wrap:wrap;">
                 <button class="btn btn--primary btn--sm" 
                     ${c.parse_status !== 'ready' ? 'disabled' : ''}
                     onclick="openResumeMatch('${c.id}', '${escapeHtml(c.full_name)}', '${escapeHtml(c.resume_file_name || '')}')">
                     Resume Match
+                </button>
+                <button class="btn btn--secondary btn--sm"
+                    onclick="openReportHistory('${c.id}', '${escapeHtml(c.full_name)}')">
+                    📋 History
                 </button>
             </td>
         </tr>
@@ -364,6 +368,82 @@ function loadJobsForMatch() {
     select.innerHTML = '<option value="">— Select a Job —</option>' +
         filtered.map(j => `<option value="${j.id}">${escapeHtml(j.title)}${j.company ? ' — ' + escapeHtml(j.company) : ''}</option>`).join('');
 }
+
+
+// ============================================================
+// REPORT HISTORY
+// ============================================================
+
+async function openReportHistory(candidateId, candidateName) {
+    const modal = document.getElementById('reportHistoryModal');
+    const title = document.getElementById('reportHistoryTitle');
+    const body  = document.getElementById('reportHistoryBody');
+
+    title.textContent = `Match Reports — ${candidateName}`;
+    body.innerHTML = '<div style="text-align:center;padding:32px;"><div class="spinner" style="width:32px;height:32px;margin:0 auto 12px;"></div><div style="color:var(--text-secondary);">Loading reports...</div></div>';
+    openModal('reportHistoryModal');
+
+    try {
+        const res = await fetch(`${API.candidateReports}?candidate_id=${encodeURIComponent(candidateId)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const raw = await res.json();
+        const reports = normaliseN8nArray(raw);
+
+        if (reports.length === 0) {
+            body.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary);">No reports generated yet for this candidate.</div>';
+            return;
+        }
+
+        body.innerHTML = reports.map(r => {
+            const scoreClass = getScoreClass(r.score_label);
+            return `
+            <div style="display:flex;align-items:center;gap:16px;padding:14px 16px;background:var(--bg-tertiary);border:1px solid var(--border-default);border-radius:var(--radius-md);margin-bottom:10px;">
+                <div style="min-width:52px;text-align:center;">
+                    <div style="font-size:1.3rem;font-weight:800;color:var(--score-${scoreClass});">${r.match_score}%</div>
+                    <div style="font-size:0.7rem;color:var(--text-muted);">${escapeHtml(r.score_label || '')}</div>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-weight:600;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(r.job_title || '—')}</div>
+                    <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">${escapeHtml(r.company || '')}${r.company ? ' · ' : ''}${formatDate(r.created_at)}</div>
+                </div>
+                <button class="btn btn--primary btn--sm" onclick="viewReportById('${r.id}', '${candidateId}', '${escapeHtml(candidateName)}')">View</button>
+            </div>`;
+        }).join('');
+    } catch (err) {
+        body.innerHTML = `<div style="text-align:center;padding:32px;color:#f87171;">Failed to load reports: ${escapeHtml(err.message)}</div>`;
+    }
+}
+
+async function viewReportById(reportId, candidateId, candidateName) {
+    closeModal('reportHistoryModal');
+    openModal('loadingModal');
+    document.getElementById('loadingTimer').textContent = 'Loading saved report...';
+
+    try {
+        const res = await fetch(`${API.getReport}?report_id=${encodeURIComponent(reportId)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const raw = await res.json();
+        const data = normaliseN8nArray(raw)[0];
+        if (!data) throw new Error('Report not found');
+
+        // full_report_json may come back as a string (postgres text) or already parsed object
+        if (typeof data.full_report_json === 'string') {
+            try { data.full_report_json = JSON.parse(data.full_report_json); } catch (_) {}
+        }
+
+        // Set global state so existing report rendering functions work unchanged
+        currentMatchCandidateId = candidateId;
+        currentMatchCandidateName = data.candidate_name || candidateName;
+        currentReport = data;
+
+        closeModal('loadingModal');
+        openFullReport();
+    } catch (err) {
+        closeModal('loadingModal');
+        showToast(`Could not load report: ${err.message}`, 'error');
+    }
+}
+
 
 async function handleGenerateMatch() {
     const jobId = document.getElementById('matchJobSelect').value;

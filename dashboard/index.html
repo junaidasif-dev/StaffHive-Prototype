@@ -281,6 +281,22 @@
         </div>
     </div>
 
+    <!-- ===== REPORT HISTORY MODAL ===== -->
+    <div class="modal-overlay" id="reportHistoryModal">
+        <div class="modal modal--wide">
+            <div class="modal__header">
+                <h2 class="modal__title" id="reportHistoryTitle">Match Reports</h2>
+                <button class="modal__close" onclick="closeModal('reportHistoryModal')">✕</button>
+            </div>
+            <div class="modal__body" id="reportHistoryBody">
+                <!-- Populated dynamically -->
+            </div>
+            <div class="modal__footer">
+                <button class="btn btn--secondary" onclick="closeModal('reportHistoryModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== LOADING MODAL ===== -->
     <div class="modal-overlay" id="loadingModal">
         <div class="modal" style="max-width: 400px; text-align: center;">
