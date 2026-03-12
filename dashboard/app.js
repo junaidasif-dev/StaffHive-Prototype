@@ -5,20 +5,29 @@
 // ============================================================
 
 // ---- Configuration ----
-// We now use Vercel rewrites to bypass CORS.
-// The browser calls /api/* on Vercel, and Vercel securely forwards it to n8n backend.
+// Direct n8n webhook URLs — n8n has CORS (Access-Control-Allow-Origin: *) configured
+// so browsers can call it directly without a Vercel proxy in the middle.
+const N8N_BASE = 'https://n8n.axcesstms.ca/webhook';
+
 const API = {
     // Write endpoints (POST)
-    candidateUpload: `/api/upload/candidate-upload`,
-    jobUpload:       `/api/upload/job-upload`,
-    resumeMatch:     `/api/upload/resume-match`,
+    candidateUpload: `${N8N_BASE}/candidate-upload`,
+    jobUpload:       `${N8N_BASE}/job-upload`,
+    resumeMatch:     `${N8N_BASE}/resume-match`,
 
     // Read endpoints (GET)
-    listCandidates:    `/api/read/list-candidates`,
-    listJobs:          `/api/read/list-jobs`,
-    getReport:         `/api/read/get-report`,
-    candidateReports:  `/api/read/candidate-reports`,
+    listCandidates:    `${N8N_BASE}/list-candidates`,
+    listJobs:          `${N8N_BASE}/list-jobs`,
+    getReport:         `${N8N_BASE}/get-report`,
+    candidateReports:  `${N8N_BASE}/candidate-reports`,
 };
+
+// Helper: n8n's "Respond with All Incoming Items" wraps rows as [{json:{...}}, ...]
+// This normalises the response whether n8n returns [{json:{...}}] or plain [{...}].
+function normaliseN8nArray(data) {
+    if (!Array.isArray(data)) return [];
+    return data.map(item => (item && item.json ? item.json : item));
+}
 
 
 // ---- State ----
@@ -44,27 +53,34 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadCandidates() {
     try {
         const res = await fetch(API.listCandidates);
-        if (!res.ok) throw new Error('Failed to load candidates');
-        candidates = await res.json();
+        if (!res.ok) {
+            const body = await res.text().catch(() => '');
+            throw new Error(`HTTP ${res.status}: ${body || res.statusText}`);
+        }
+        const raw = await res.json();
+        candidates = normaliseN8nArray(raw);
         renderCandidateTable();
     } catch (err) {
-        console.warn('Could not load candidates from n8n:', err.message);
-        // Show empty state gracefully
+        console.error('Could not load candidates:', err);
         candidates = [];
-        renderCandidateTable();
+        renderCandidateTable(err.message);
     }
 }
 
 async function loadJobs() {
     try {
         const res = await fetch(API.listJobs);
-        if (!res.ok) throw new Error('Failed to load jobs');
-        jobs = await res.json();
+        if (!res.ok) {
+            const body = await res.text().catch(() => '');
+            throw new Error(`HTTP ${res.status}: ${body || res.statusText}`);
+        }
+        const raw = await res.json();
+        jobs = normaliseN8nArray(raw);
         renderJobTable();
     } catch (err) {
-        console.warn('Could not load jobs from n8n:', err.message);
+        console.error('Could not load jobs:', err);
         jobs = [];
-        renderJobTable();
+        renderJobTable(err.message);
     }
 }
 
@@ -73,7 +89,7 @@ async function loadJobs() {
 // RENDERING
 // ============================================================
 
-function renderCandidateTable() {
+function renderCandidateTable(errorMsg) {
     const tbody = document.getElementById('candidateTableBody');
     const empty = document.getElementById('candidateEmptyState');
     const table = document.getElementById('candidateTable');
@@ -81,6 +97,9 @@ function renderCandidateTable() {
     if (candidates.length === 0) {
         table.style.display = 'none';
         empty.style.display = 'block';
+        if (errorMsg) {
+            empty.innerHTML = `<div class="empty-state__icon">⚠️</div><div class="empty-state__title">Could not load candidates</div><div class="empty-state__text" style="color:#f87171;font-size:0.8rem;word-break:break-all;">${escapeHtml(errorMsg)}</div>`;
+        }
         return;
     }
 
@@ -106,7 +125,7 @@ function renderCandidateTable() {
     `).join('');
 }
 
-function renderJobTable() {
+function renderJobTable(errorMsg) {
     const tbody = document.getElementById('jobTableBody');
     const empty = document.getElementById('jobEmptyState');
     const table = document.getElementById('jobTable');
@@ -114,6 +133,9 @@ function renderJobTable() {
     if (jobs.length === 0) {
         table.style.display = 'none';
         empty.style.display = 'block';
+        if (errorMsg) {
+            empty.innerHTML = `<div class="empty-state__icon">⚠️</div><div class="empty-state__title">Could not load jobs</div><div class="empty-state__text" style="color:#f87171;font-size:0.8rem;word-break:break-all;">${escapeHtml(errorMsg)}</div>`;
+        }
         return;
     }
 
