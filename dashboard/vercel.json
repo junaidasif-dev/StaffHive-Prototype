@@ -3,6 +3,10 @@
     {
       "source": "/api/upload/:path*",
       "destination": "https://n8n.axcesstms.ca/webhook/:path*"
+    },
+    {
+      "source": "/api/read/:path*",
+      "destination": "https://n8n.axcesstms.ca/webhook/:path*"
     }
   ],
   "headers": [
