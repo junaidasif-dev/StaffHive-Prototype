@@ -37,20 +37,22 @@
 
         <!-- ===== CANDIDATES TAB ===== -->
         <section id="candidatesTab">
-            <table class="data-table" id="candidateTable">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Resume File</th>
-                        <th>Parse Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="candidateTableBody">
-                    <!-- Populated by JS -->
-                </tbody>
-            </table>
+            <div class="table-wrap">
+                <table class="data-table" id="candidateTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Resume File</th>
+                            <th>Parse Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="candidateTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
             <div class="empty-state" id="candidateEmptyState" style="display: none;">
                 <div class="empty-state__icon">👤</div>
                 <div class="empty-state__title">No candidates yet</div>
@@ -60,20 +62,22 @@
 
         <!-- ===== JOBS TAB ===== -->
         <section id="jobsTab" style="display: none;">
-            <table class="data-table" id="jobTable">
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Company</th>
-                        <th>Type</th>
-                        <th>Status</th>
-                        <th>Created</th>
-                    </tr>
-                </thead>
-                <tbody id="jobTableBody">
-                    <!-- Populated by JS -->
-                </tbody>
-            </table>
+            <div class="table-wrap">
+                <table class="data-table" id="jobTable">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Company</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody id="jobTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
             <div class="empty-state" id="jobEmptyState" style="display: none;">
                 <div class="empty-state__icon">💼</div>
                 <div class="empty-state__title">No jobs yet</div>
@@ -222,13 +226,13 @@
                 </div>
 
                 <!-- Score + Summary -->
-                <div style="display: flex; align-items: flex-start; gap: 24px; margin-bottom: 20px;">
+                <div class="preview-layout" style="display: flex; align-items: flex-start; gap: 24px; margin-bottom: 20px;">
                     <div class="score-ring" id="previewScoreRing">
                         <div class="score-ring__circle"><span id="previewScore">—</span></div>
                         <div class="score-ring__label">Match Score</div>
                     </div>
-                    <div style="flex: 1;">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <div class="preview-content" style="flex: 1;">
+                        <div class="preview-meta" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
                             <span id="previewFileName" style="font-weight: 600; font-size: 0.85rem; padding: 4px 10px; background: var(--bg-tertiary); border-radius: 4px;">—</span>
                             <span id="previewDate" style="font-size: 0.8rem; color: var(--text-muted);">—</span>
                         </div>

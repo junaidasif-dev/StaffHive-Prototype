@@ -108,13 +108,13 @@ function renderCandidateTable(errorMsg) {
 
     tbody.innerHTML = candidates.map(c => `
         <tr>
-            <td style="font-weight: 600;">${escapeHtml(c.full_name)}</td>
-            <td style="color: var(--text-secondary);">${escapeHtml(c.email || '—')}</td>
-            <td style="color: var(--text-secondary);">
+            <td data-label="Name" style="font-weight: 600;">${escapeHtml(c.full_name)}</td>
+            <td data-label="Email" style="color: var(--text-secondary);">${escapeHtml(c.email || '—')}</td>
+            <td data-label="Resume File" style="color: var(--text-secondary);">
                 📄 ${escapeHtml(c.resume_file_name || '—')}
             </td>
-            <td>${renderParseStatusBadge(c.parse_status)}</td>
-            <td style="display:flex;gap:6px;flex-wrap:wrap;">
+            <td data-label="Parse Status">${renderParseStatusBadge(c.parse_status)}</td>
+            <td data-label="Actions" style="display:flex;gap:6px;flex-wrap:wrap;">
                 <button class="btn btn--primary btn--sm" 
                     ${c.parse_status !== 'ready' ? 'disabled' : ''}
                     onclick="openResumeMatch('${c.id}', '${escapeHtml(c.full_name)}', '${escapeHtml(c.resume_file_name || '')}')">
@@ -148,11 +148,11 @@ function renderJobTable(errorMsg) {
 
     tbody.innerHTML = jobs.map(j => `
         <tr>
-            <td style="font-weight: 600;">${escapeHtml(j.title)}</td>
-            <td style="color: var(--text-secondary);">${escapeHtml(j.company || '—')}</td>
-            <td>${renderJobTypeBadge(j.job_type)}</td>
-            <td>${renderJobStatusBadge(j.status)}</td>
-            <td style="color: var(--text-muted); font-size: 0.85rem;">${formatDate(j.created_at)}</td>
+            <td data-label="Title" style="font-weight: 600;">${escapeHtml(j.title)}</td>
+            <td data-label="Company" style="color: var(--text-secondary);">${escapeHtml(j.company || '—')}</td>
+            <td data-label="Type">${renderJobTypeBadge(j.job_type)}</td>
+            <td data-label="Status">${renderJobStatusBadge(j.status)}</td>
+            <td data-label="Created" style="color: var(--text-muted); font-size: 0.85rem;">${formatDate(j.created_at)}</td>
         </tr>
     `).join('');
 }
