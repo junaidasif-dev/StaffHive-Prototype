@@ -509,9 +509,6 @@ function showReportPreview(report) {
     document.getElementById('previewMetricTime').textContent = report.processing_time_ms
         ? `${(report.processing_time_ms / 1000).toFixed(1)}s`
         : '—';
-    document.getElementById('previewMetricInputTokens').textContent = report.input_tokens?.toLocaleString() || '—';
-    document.getElementById('previewMetricOutputTokens').textContent = report.output_tokens?.toLocaleString() || '—';
-    document.getElementById('previewMetricModel').textContent = report.llm_model_used || '—';
 
     // Score ring
     const ring = document.getElementById('previewScoreRing');
