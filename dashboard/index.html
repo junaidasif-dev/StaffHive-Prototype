@@ -223,6 +223,18 @@
                         <div class="metric__label">Time</div>
                         <div class="metric__value metric__value--green" id="previewMetricTime">—</div>
                     </div>
+                    <div class="metric">
+                        <div class="metric__label">Input Tokens</div>
+                        <div class="metric__value" id="previewMetricInputTokens">—</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric__label">Output Tokens</div>
+                        <div class="metric__value" id="previewMetricOutputTokens">—</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric__label">Model</div>
+                        <div class="metric__value" id="previewMetricModel">—</div>
+                    </div>
                 </div>
 
                 <!-- Score + Summary -->
@@ -257,6 +269,7 @@
                 <div>
                     <h2 class="modal__title">Resume Match Report</h2>
                     <div id="fullReportSubtitle" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">—</div>
+                    <div id="fullReportMeta" style="font-size: 0.75rem; display: flex; align-items: center; gap: 8px; margin-top: 8px; background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-default); width: fit-content;"></div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <span class="badge" id="fullReportScoreBadge">—</span>

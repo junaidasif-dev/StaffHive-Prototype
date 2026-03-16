@@ -509,6 +509,9 @@ function showReportPreview(report) {
     document.getElementById('previewMetricTime').textContent = report.processing_time_ms
         ? `${(report.processing_time_ms / 1000).toFixed(1)}s`
         : '—';
+    document.getElementById('previewMetricInputTokens').textContent = report.input_tokens ? report.input_tokens.toLocaleString() : '—';
+    document.getElementById('previewMetricOutputTokens').textContent = report.output_tokens ? report.output_tokens.toLocaleString() : '—';
+    document.getElementById('previewMetricModel').textContent = report.llm_model_used || '—';
 
     // Score ring
     const ring = document.getElementById('previewScoreRing');
@@ -539,6 +542,19 @@ function openFullReport() {
     const candidate = candidates.find(c => c.id === currentMatchCandidateId);
     document.getElementById('fullReportSubtitle').textContent =
         `${candidate?.resume_file_name || 'Resume'} • Generated on ${formatDate(report.created_at || new Date().toISOString())}`;
+        
+    const metaContainer = document.getElementById('fullReportMeta');
+    if (metaContainer) {
+        metaContainer.innerHTML = `
+            <span style="display:inline-flex;align-items:center;gap:4px;"><span style="color:var(--text-muted)">Time:</span> <strong style="color:var(--score-good)">${report.processing_time_ms ? (report.processing_time_ms / 1000).toFixed(1) + 's' : '—'}</strong></span>
+            <span style="color:var(--border-default)">|</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;"><span style="color:var(--text-muted)">Type:</span> <strong>${report.llm_model_used || '—'}</strong></span>
+            <span style="color:var(--border-default)">|</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;"><span style="color:var(--text-muted)">In:</span> <strong>${report.input_tokens ? report.input_tokens.toLocaleString() : '—'}</strong></span>
+            <span style="color:var(--border-default)">|</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;"><span style="color:var(--text-muted)">Out:</span> <strong>${report.output_tokens ? report.output_tokens.toLocaleString() : '—'}</strong></span>
+        `;
+    }
 
     // Score badge
     const badge = document.getElementById('fullReportScoreBadge');
