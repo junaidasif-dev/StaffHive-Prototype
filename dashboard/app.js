@@ -7,13 +7,13 @@
 // ---- Configuration ----
 // Direct n8n webhook URLs — n8n has CORS (Access-Control-Allow-Origin: *) configured
 // so browsers can call it directly without a Vercel proxy in the middle.
-const N8N_BASE = 'https://n8n.axcesstms.ca/webhook';
+const N8N_BASE = 'https://n8n.axcesstms.ca/webhook-test';
 
 const API = {
     // Write endpoints (POST)
     candidateUpload: `${N8N_BASE}/candidate-upload`,
     jobUpload:       `${N8N_BASE}/job-upload`,
-    resumeMatch:     `${N8N_BASE}/resume-match`,
+    resumeMatch:     `${N8N_BASE}/resume-match-http`,
 
     // Read endpoints (GET)
     listCandidates:    `${N8N_BASE}/list-candidates`,
