@@ -7,7 +7,7 @@
 // ---- Configuration ----
 // Direct n8n webhook URLs — n8n has CORS (Access-Control-Allow-Origin: *) configured
 // so browsers can call it directly without a Vercel proxy in the middle.
-const N8N_BASE = 'https://n8n.axcesstms.ca/webhook-test';
+const N8N_BASE = 'https://n8n.axcesstms.ca/webhook';
 
 const API = {
     // Write endpoints (POST)
